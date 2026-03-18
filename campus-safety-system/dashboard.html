@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Campus Safety System - Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/dashboard.css" />
+</head>
+<body>
+    <div class="page-bg-orb orb-a" aria-hidden="true"></div>
+    <div class="page-bg-orb orb-b" aria-hidden="true"></div>
+
+    <header class="site-header">
+        <div class="container nav-wrap">
+            <a href="index.html" class="brand" aria-label="Campus Safety Home">
+                <span class="brand-dot" aria-hidden="true"></span>
+                <span>Campus Safety</span>
+            </a>
+            <nav class="main-nav" aria-label="Primary">
+                <a href="dashboard.html">Dashboard</a>
+                <a href="sos-landing.html" class="btn-secondary" style="padding: 0.55rem 0.9rem;">SOS</a>
+                <a href="#" id="logoutBtn" style="color: var(--primary);">Logout</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="section">
+        <div class="container">
+            <div class="dashboard-header">
+                <h1>Student Dashboard</h1>
+                <p id="welcomeMessage" style="color: var(--text-muted); margin-top: 0.5rem;">
+                    Welcome back!
+                </p>
+            </div>
+
+            <div class="dashboard-grid">
+                <!-- Quick Actions Card -->
+                <div class="feature-card dashboard-card">
+                    <h2>Quick Actions</h2>
+                    <div class="action-buttons">
+                        <a href="sos-landing.html" class="btn btn-primary btn-sos" style="width: 100%; text-align: center;">
+                            Emergency SOS
+                        </a>
+                        <button type="button" id="toggleComplaintFormBtn" class="btn btn-secondary" style="width: 100%;">
+                            Submit Complaint
+                        </button>
+                    </div>
+                </div>
+
+                <!-- User Info Card -->
+                <div class="feature-card dashboard-card">
+                    <h2>Account Info</h2>
+                    <div class="user-info">
+                        <p><strong>Email:</strong> <span id="userEmail">loading...</span></p>
+                        <p><strong>User ID:</strong> <span id="userId">loading...</span></p>
+                        <p><strong>Account Type:</strong> <span id="userType">loading...</span></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Complaint Form (Hidden by default) -->
+            <div id="complaintFormSection" class="feature-card" style="display: none; margin-top: 1.5rem; padding: 1.5rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h2 style="margin: 0;">Submit Complaint</h2>
+                    <button type="button" id="closeComplaintFormBtn" style="border: none; background: none; font-size: 1.5rem; cursor: pointer; color: var(--text-muted);">&times;</button>
+                </div>
+
+                <form id="complaintForm" style="display: grid; gap: 1rem;">
+                    <div style="display: grid; gap: 0.4rem;">
+                        <label for="title" style="font-weight: 600; font-size: 0.92rem;">Title *</label>
+                        <input
+                            type="text"
+                            id="title"
+                            name="title"
+                            required
+                            placeholder="Brief description of the issue"
+                            class="form-input"
+                        />
+                    </div>
+
+                    <div style="display: grid; gap: 0.4rem;">
+                        <label for="complaint_type" style="font-weight: 600; font-size: 0.92rem;">Type *</label>
+                        <select
+                            id="complaint_type"
+                            name="complaint_type"
+                            required
+                            class="form-input"
+                        >
+                            <option value="">Select complaint type</option>
+                            <option value="hostel">Hostel</option>
+                            <option value="academic">Academic</option>
+                            <option value="infrastructure">Infrastructure</option>
+                            <option value="safety">Safety</option>
+                            <option value="medical">Medical</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+
+                    <div style="display: grid; gap: 0.4rem;">
+                        <label for="description" style="font-weight: 600; font-size: 0.92rem;">Description *</label>
+                        <textarea
+                            id="description"
+                            name="description"
+                            required
+                            rows="4"
+                            placeholder="Provide detailed information about the complaint"
+                            class="form-input"
+                            style="resize: vertical;"
+                        ></textarea>
+                    </div>
+
+                    <div style="display: grid; gap: 0.4rem;">
+                        <label for="location" style="font-weight: 600; font-size: 0.92rem;">Location (Optional)</label>
+                        <input
+                            type="text"
+                            id="location"
+                            name="location"
+                            placeholder="e.g., Hostel Block A, Library 2nd Floor"
+                            class="form-input"
+                        />
+                    </div>
+
+                    <div
+                        id="complaintMessage"
+                        role="alert"
+                        style="display: none;"
+                        class="message-box"
+                    ></div>
+
+                    <button
+                        type="submit"
+                        id="submitComplaintBtn"
+                        class="btn btn-primary"
+                        style="width: 100%; cursor: pointer; border: none;"
+                    >
+                        Submit Complaint
+                    </button>
+                </form>
+            </div>
+
+            <!-- Complaints List -->
+            <div class="feature-card" style="margin-top: 1.5rem; padding: 1.5rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h2 style="margin: 0;">My Complaints</h2>
+                    <button type="button" id="refreshComplaintsBtn" class="btn btn-secondary" style="padding: 0.5rem 1rem;">
+                        Refresh
+                    </button>
+                </div>
+
+                <div
+                    id="complaintsLoadingMessage"
+                    style="text-align: center; padding: 2rem; color: var(--text-muted);"
+                >
+                    Loading complaints...
+                </div>
+
+                <div
+                    id="complaintsEmptyMessage"
+                    style="display: none; text-align: center; padding: 2rem; color: var(--text-muted);"
+                >
+                    No complaints found. Submit your first complaint above!
+                </div>
+
+                <div id="complaintsList" style="display: grid; gap: 1rem;"></div>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/dashboard.js"></script>
+</body>
+</html>

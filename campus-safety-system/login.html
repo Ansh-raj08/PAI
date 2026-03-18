@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Campus Safety System - Login</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+    <div class="page-bg-orb orb-a" aria-hidden="true"></div>
+    <div class="page-bg-orb orb-b" aria-hidden="true"></div>
+
+    <header class="site-header">
+        <div class="container nav-wrap">
+            <a href="index.html" class="brand" aria-label="Campus Safety Home">
+                <span class="brand-dot" aria-hidden="true"></span>
+                <span>Campus Safety</span>
+            </a>
+            <nav class="main-nav" aria-label="Primary">
+                <a href="index.html">Home</a>
+                <a href="signup.html">Sign Up</a>
+            </nav>
+        </div>
+    </header>
+
+    <main style="min-height: 80vh; display: flex; align-items: center; justify-content: center; padding: 2rem 0;">
+        <div class="container" style="max-width: 460px;">
+            <div class="feature-card" style="padding: 2rem;">
+                <h1 style="margin-bottom: 0.5rem; font-size: 1.8rem; text-align: center;">Login</h1>
+                <p style="text-align: center; color: var(--text-muted); margin-bottom: 1.5rem;">
+                    Welcome back to Campus Safety
+                </p>
+
+                <form id="loginForm" style="display: grid; gap: 1rem;">
+                    <div style="display: grid; gap: 0.4rem;">
+                        <label for="email" style="font-weight: 600; font-size: 0.92rem;">Email</label>
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            required
+                            placeholder="student@krmu.edu.in"
+                            style="
+                                padding: 0.75rem 1rem;
+                                border: 1px solid var(--line);
+                                border-radius: var(--radius-sm);
+                                background: linear-gradient(145deg, #ffffff, #f9fafb);
+                                box-shadow: var(--shadow-inset);
+                                font-family: inherit;
+                                font-size: 1rem;
+                                transition: border-color var(--transition), box-shadow var(--transition);
+                            "
+                        />
+                    </div>
+
+                    <div style="display: grid; gap: 0.4rem;">
+                        <label for="password" style="font-weight: 600; font-size: 0.92rem;">Password</label>
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            required
+                            placeholder="Enter your password"
+                            style="
+                                padding: 0.75rem 1rem;
+                                border: 1px solid var(--line);
+                                border-radius: var(--radius-sm);
+                                background: linear-gradient(145deg, #ffffff, #f9fafb);
+                                box-shadow: var(--shadow-inset);
+                                font-family: inherit;
+                                font-size: 1rem;
+                                transition: border-color var(--transition), box-shadow var(--transition);
+                            "
+                        />
+                    </div>
+
+                    <div
+                        id="errorMessage"
+                        role="alert"
+                        style="
+                            display: none;
+                            padding: 0.75rem 1rem;
+                            background: rgba(211, 47, 47, 0.1);
+                            border: 1px solid rgba(211, 47, 47, 0.3);
+                            border-radius: var(--radius-sm);
+                            color: var(--primary);
+                            font-size: 0.9rem;
+                        "
+                    ></div>
+
+                    <button
+                        type="submit"
+                        id="submitBtn"
+                        class="btn btn-primary"
+                        style="
+                            width: 100%;
+                            margin-top: 0.5rem;
+                            cursor: pointer;
+                            border: none;
+                            font-size: 1rem;
+                        "
+                    >
+                        Login
+                    </button>
+
+                    <p style="text-align: center; color: var(--text-muted); font-size: 0.92rem; margin-top: 0.5rem;">
+                        Don't have an account? <a href="signup.html" style="color: var(--primary); font-weight: 600; text-decoration: none;">Sign Up</a>
+                    </p>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/auth.js"></script>
+</body>
+</html>

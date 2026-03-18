@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Smart Campus Safety SOS Emergency Landing Page" />
+    <title>Smart Campus Safety | SOS Emergency</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Sora:wght@600;700&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="css/sos-landing.css" />
+</head>
+
+<body>
+    <div class="background-orb orb-one" aria-hidden="true"></div>
+    <div class="background-orb orb-two" aria-hidden="true"></div>
+
+    <header class="top-nav" role="banner">
+        <div class="container nav-inner">
+            <a href="index.html" class="logo" aria-label="Campus Safety Home">
+                <span class="logo-mark" aria-hidden="true">&#9888;</span>
+                <span class="logo-text">Campus Safety</span>
+            </a>
+            <nav class="nav-links" aria-label="Main Navigation">
+                <a href="index.html">Home</a>
+                <a href="dashboard.html">Report Issue</a>
+                <a href="dashboard.html">Lost &amp; Found</a>
+                <a href="dashboard.html">Dashboard</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero container" aria-labelledby="hero-title">
+            <h1 id="hero-title">Smart Campus Emergency Response</h1>
+            <p class="hero-subtitle">One-tap SOS support for students and staff across campus.</p>
+
+            <div class="sos-shell" role="presentation">
+                <button id="sosButton" class="sos-button" type="button" aria-label="Trigger SOS Emergency"
+                    onclick="triggerSOS()">
+                    <span class="sos-highlight" aria-hidden="true"></span>
+                    <span class="sos-label">SOS</span>
+                </button>
+            </div>
+
+            <p class="hero-note">Press in case of emergency. Your location will be shared with campus security.</p>
+        </section>
+
+        <section class="features container" aria-labelledby="features-title">
+            <h2 id="features-title">Emergency Features</h2>
+            <div class="feature-grid">
+                <article class="feature-card">
+                    <div class="card-icon" aria-hidden="true">&#9889;</div>
+                    <h3>Instant SOS Alert</h3>
+                    <p>Sends real-time alert to campus security.</p>
+                </article>
+                <article class="feature-card">
+                    <div class="card-icon" aria-hidden="true">&#128205;</div>
+                    <h3>Live Location Tracking</h3>
+                    <p>Automatically shares your GPS location.</p>
+                </article>
+                <article class="feature-card">
+                    <div class="card-icon" aria-hidden="true">&#128737;</div>
+                    <h3>24/7 Safety Support</h3>
+                    <p>Immediate response from campus authorities.</p>
+                </article>
+            </div>
+        </section>
+
+        <section class="how-it-works container" aria-labelledby="how-title">
+            <h2 id="how-title">How It Works</h2>
+            <div class="steps" role="list">
+                <div class="step" role="listitem">
+                    <span class="step-index">1</span>
+                    <p>Press SOS</p>
+                </div>
+                <div class="step" role="listitem">
+                    <span class="step-index">2</span>
+                    <p>Location captured</p>
+                </div>
+                <div class="step" role="listitem">
+                    <span class="step-index">3</span>
+                    <p>Alert sent to security</p>
+                </div>
+                <div class="step" role="listitem">
+                    <span class="step-index">4</span>
+                    <p>Help arrives</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="stats container" aria-labelledby="stats-title">
+            <h2 id="stats-title">Campus Safety Stats</h2>
+            <div class="stats-grid">
+                <article class="stat-card">
+                    <p class="stat-title">Average Response Time</p>
+                    <p class="stat-value">3m 42s</p>
+                </article>
+                <article class="stat-card">
+                    <p class="stat-title">Active Security Staff</p>
+                    <p class="stat-value">48</p>
+                </article>
+                <article class="stat-card">
+                    <p class="stat-title">Incidents Resolved</p>
+                    <p class="stat-value">1,284</p>
+                </article>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container footer-grid">
+            <div>
+                <h3>Campus Safety Contact</h3>
+                <p>security@university.edu</p>
+            </div>
+            <div>
+                <h3>Emergency Helpline</h3>
+                <p>+1 (800) 911-CAMPUS</p>
+            </div>
+            <div>
+                <h3>Privacy Policy</h3>
+                <p><a href="#">Read policy</a></p>
+            </div>
+            <div>
+                <h3>University</h3>
+                <p>University Safety Office</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/sos-landing.js"></script>
+</body>
+
+</html>

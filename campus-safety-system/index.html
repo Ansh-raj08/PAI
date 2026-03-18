@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Smart Campus Safety & Help Desk Management System landing page" />
+    <title>Smart Campus Safety & Help Desk Management System</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+    <div class="page-bg-orb orb-a" aria-hidden="true"></div>
+    <div class="page-bg-orb orb-b" aria-hidden="true"></div>
+
+    <header class="site-header" id="siteHeader">
+        <div class="container nav-wrap">
+            <a href="#home" class="brand" aria-label="Campus Safety Home">
+                <span class="brand-dot" aria-hidden="true"></span>
+                <span>Campus Safety</span>
+            </a>
+
+            <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation menu" aria-controls="mainNav" aria-expanded="false">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+
+            <nav class="main-nav" id="mainNav" aria-label="Primary">
+                <a href="#home">Home</a>
+                <a href="#features">Features</a>
+                <a href="#how-it-works">How It Works</a>
+                <a href="#contact">Contact</a>
+                <a href="login.html">Login</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero section" id="home">
+            <div class="container hero-grid">
+                <div class="hero-copy">
+                    <h1>Smart Campus Safety &amp; Help Desk System</h1>
+                    <p class="hero-subtext">A centralized platform where students can report issues, request help, track complaints, and send emergency alerts instantly.</p>
+                    <div class="hero-actions">
+                        <a href="signup.html" class="btn btn-primary">Get Started</a>
+                        <a href="login.html" class="btn btn-secondary">Login</a>
+                    </div>
+                </div>
+
+                <aside class="hero-visual" aria-label="Safety platform dashboard concept">
+                    <div class="visual-top">
+                        <p class="visual-title">Student Safety Console</p>
+                        <span class="visual-badge">Live</span>
+                    </div>
+                    <div class="visual-grid">
+                        <div class="visual-card">
+                            <p>Open Tickets</p>
+                            <strong>23</strong>
+                        </div>
+                        <div class="visual-card">
+                            <p>Resolved Today</p>
+                            <strong>14</strong>
+                        </div>
+                        <div class="visual-card visual-alert">
+                            <p>Emergency Queue</p>
+                            <strong>1 Active</strong>
+                        </div>
+                    </div>
+                    <div class="visual-bar-group" aria-hidden="true">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </aside>
+            </div>
+        </section>
+
+        <section class="section features" id="features">
+            <div class="container">
+                <h2>Platform Features</h2>
+                <div class="feature-grid">
+                    <article class="feature-card">
+                        <div class="icon-badge" aria-hidden="true">SOS</div>
+                        <h3>SOS Emergency Alerts</h3>
+                        <p>Students can send emergency alerts instantly with location tracking.</p>
+                    </article>
+                    <article class="feature-card">
+                        <div class="icon-badge" aria-hidden="true">CM</div>
+                        <h3>Complaint Management</h3>
+                        <p>Report hostel, academic, or campus issues and track their resolution.</p>
+                    </article>
+                    <article class="feature-card">
+                        <div class="icon-badge" aria-hidden="true">LF</div>
+                        <h3>Lost &amp; Found Portal</h3>
+                        <p>Report lost items and help others recover their belongings.</p>
+                    </article>
+                    <article class="feature-card">
+                        <div class="icon-badge" aria-hidden="true">AN</div>
+                        <h3>Safety Analytics</h3>
+                        <p>Admins can view reports and identify safety patterns across campus.</p>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section class="section workflow" id="how-it-works">
+            <div class="container">
+                <h2>How The System Works</h2>
+                <div class="steps-grid" role="list">
+                    <article class="step-item" role="listitem">
+                        <span class="step-index">1</span>
+                        <h3>Student logs into the system</h3>
+                    </article>
+                    <article class="step-item" role="listitem">
+                        <span class="step-index">2</span>
+                        <h3>Student reports an issue or sends SOS alert</h3>
+                    </article>
+                    <article class="step-item" role="listitem">
+                        <span class="step-index">3</span>
+                        <h3>Authorities receive and assign the case</h3>
+                    </article>
+                    <article class="step-item" role="listitem">
+                        <span class="step-index">4</span>
+                        <h3>Issue gets resolved and tracked</h3>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section class="section dashboard-preview" id="dashboard-preview">
+            <div class="container">
+                <h2>Campus Safety Dashboard Preview</h2>
+                <div class="preview-shell">
+                    <div class="preview-left">
+                        <p class="preview-heading">Student Dashboard</p>
+                        <div class="preview-actions">
+                            <button type="button" class="mini-btn">Report Complaint</button>
+                            <button type="button" class="mini-btn">Track Complaint Status</button>
+                            <button type="button" class="mini-btn mini-btn-danger">SOS</button>
+                        </div>
+                    </div>
+                    <div class="preview-right">
+                        <p class="preview-heading">Recent Activity</p>
+                        <ul class="activity-list">
+                            <li>Library lighting issue - In Review</li>
+                            <li>Lost ID card reported - Matched</li>
+                            <li>Hostel maintenance ticket - Resolved</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section stats" id="stats">
+            <div class="container">
+                <h2>Campus Safety Statistics</h2>
+                <div class="stats-grid">
+                    <article class="stat-card">
+                        <p class="stat-title">Average Response Time</p>
+                        <p class="stat-value">3m 42s</p>
+                    </article>
+                    <article class="stat-card">
+                        <p class="stat-title">Active Security Staff</p>
+                        <p class="stat-value">48</p>
+                    </article>
+                    <article class="stat-card">
+                        <p class="stat-title">Incidents Resolved</p>
+                        <p class="stat-value">1,284</p>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section class="section cta" id="cta">
+            <div class="container cta-panel">
+                <h2>Help build a safer campus environment.</h2>
+                <div class="cta-actions">
+                    <a href="dashboard.html" class="btn btn-primary">Report an Issue</a>
+                    <a href="dashboard.html" class="btn btn-secondary">Access Dashboard</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer" id="contact">
+        <div class="container footer-grid">
+            <div>
+                <h3>Campus Safety Office</h3>
+                <p>+1 (800) 911-CAMPUS</p>
+            </div>
+            <div>
+                <h3>Emergency Helpline</h3>
+                <p>24/7 Security Desk</p>
+            </div>
+            <div>
+                <h3>University Email</h3>
+                <p>safety@university.edu</p>
+            </div>
+            <div>
+                <h3>Copyright</h3>
+                <p>2026 Smart Campus Safety System</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
