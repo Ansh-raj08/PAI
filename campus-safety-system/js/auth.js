@@ -1,228 +1,220 @@
-// Authentication-related scripts
-console.log("auth.js loaded");
+/**
+ * Auth Forms - Login & Signup Form Handlers
+ * Campus Safety System
+ *
+ * This file ONLY handles form submission logic.
+ * All auth state management is in auth-guard.js
+ */
 
-const API_BASE_URL = "http://localhost:8000";
+import {
+    checkPublicPage,
+    login,
+    signup,
+    redirectToDashboard,
+    getProfile,
+    parseAuthError,
+    isValidEmail
+} from './auth-guard.js';
 
-// Determine which page we're on
-const isLoginPage = window.location.pathname.includes("login.html");
-const isSignupPage = window.location.pathname.includes("signup.html");
+console.log('[AuthForms] Module loaded');
 
-// Initialize page-specific handlers
-document.addEventListener("DOMContentLoaded", () => {
-  if (isLoginPage) {
-    initLoginPage();
-  } else if (isSignupPage) {
-    initSignupPage();
-  }
+// ============================================================
+// INITIALIZATION
+// ============================================================
+
+document.addEventListener('DOMContentLoaded', async () => {
+    console.log('[AuthForms] Initializing...');
+
+    const currentPath = window.location.pathname;
+    const isLoginPage = currentPath.includes('login.html');
+    const isSignupPage = currentPath.includes('signup.html');
+
+    // Check if user is already logged in (redirect away from auth pages)
+    const shouldShowPage = await checkPublicPage();
+
+    if (!shouldShowPage) {
+        console.log('[AuthForms] User authenticated, redirecting...');
+        return; // Will redirect
+    }
+
+    // Initialize appropriate form
+    if (isLoginPage) {
+        initLoginForm();
+    } else if (isSignupPage) {
+        initSignupForm();
+    }
+
+    console.log('[AuthForms] Ready');
 });
 
-// =======================
-// LOGIN PAGE
-// =======================
-function initLoginPage() {
-  const loginForm = document.getElementById("loginForm");
-  const errorMessage = document.getElementById("errorMessage");
-  const submitBtn = document.getElementById("submitBtn");
+// ============================================================
+// LOGIN FORM
+// ============================================================
 
-  if (!loginForm) {
-    console.error("Login form not found");
-    return;
-  }
+function initLoginForm() {
+    console.log('[AuthForms] Initializing login form');
 
-  loginForm.addEventListener("submit", async (e) => {
-    e.preventDefault();
+    const form = document.getElementById('loginForm');
+    const errorEl = document.getElementById('errorMessage');
+    const submitBtn = document.getElementById('submitBtn');
 
-    // Get form values
-    const email = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value;
-
-    // Basic validation
-    if (!email || !password) {
-      showError(errorMessage, "Please fill in all fields");
-      return;
+    if (!form) {
+        console.error('[AuthForms] Login form not found');
+        return;
     }
 
-    if (!validateEmail(email)) {
-      showError(errorMessage, "Please enter a valid email address");
-      return;
-    }
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
 
-    // Disable button and show loading state
-    submitBtn.disabled = true;
-    submitBtn.textContent = "Logging in...";
-    hideMessage(errorMessage);
+        if (submitBtn.disabled) return;
 
-    // Prepare FormData
-    const formData = new FormData();
-    formData.append("email", email);
-    formData.append("password", password);
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value;
 
-    console.log("Attempting login for:", email);
+        // Validation
+        if (!email || !password) {
+            showError(errorEl, 'Please fill in all fields');
+            return;
+        }
 
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/login.php`, {
-        method: "POST",
-        body: formData,
-        credentials: "include", // Include cookies for session
-      });
+        if (!isValidEmail(email)) {
+            showError(errorEl, 'Please enter a valid email');
+            return;
+        }
 
-      console.log("Login response status:", response.status);
+        // Loading state
+        setLoading(submitBtn, true, 'Logging in...');
+        hideMessage(errorEl);
 
-      const data = await response.json();
-      console.log("Login response data:", data);
+        // Attempt login
+        const { success, user, error } = await login(email, password);
 
-      if (data.success) {
-        // Store user info in localStorage
-        localStorage.setItem("user_id", data.user_id);
-        localStorage.setItem("user_type", data.user_type);
-        localStorage.setItem("user_email", email);
+        if (!success) {
+            showError(errorEl, parseAuthError(error));
+            setLoading(submitBtn, false, 'Login');
+            return;
+        }
 
-        console.log("Login successful. Redirecting to dashboard...");
+        // Success - get profile to determine role
+        showSuccess(errorEl, 'Login successful! Redirecting...');
 
-        // Redirect to dashboard
-        window.location.href = "dashboard.html";
-      } else {
-        // Show error message
-        showError(errorMessage, data.message || "Login failed. Please try again.");
-        submitBtn.disabled = false;
-        submitBtn.textContent = "Login";
-      }
-    } catch (error) {
-      console.error("Login error:", error);
-      showError(
-        errorMessage,
-        "Network error. Please check your connection and try again."
-      );
-      submitBtn.disabled = false;
-      submitBtn.textContent = "Login";
-    }
-  });
+        const { profile } = await getProfile(user.id);
+        const role = profile?.user_type || 'student';
+
+        // Redirect to appropriate dashboard
+        redirectToDashboard(role);
+    });
 }
 
-// =======================
-// SIGNUP PAGE
-// =======================
-function initSignupPage() {
-  const signupForm = document.getElementById("signupForm");
-  const messageBox = document.getElementById("messageBox");
-  const submitBtn = document.getElementById("submitBtn");
+// ============================================================
+// SIGNUP FORM
+// ============================================================
 
-  if (!signupForm) {
-    console.error("Signup form not found");
-    return;
-  }
+function initSignupForm() {
+    console.log('[AuthForms] Initializing signup form');
 
-  signupForm.addEventListener("submit", async (e) => {
-    e.preventDefault();
+    const form = document.getElementById('signupForm');
+    const messageEl = document.getElementById('messageBox');
+    const submitBtn = document.getElementById('submitBtn');
 
-    // Get form values
-    const full_name = document.getElementById("full_name").value.trim();
-    const roll_number = document.getElementById("roll_number").value.trim();
-    const email = document.getElementById("signup_email").value.trim();
-    const phone = document.getElementById("phone").value.trim();
-    const password = document.getElementById("signup_password").value;
-
-    // Validation
-    if (!full_name || !roll_number || !email || !password) {
-      showError(messageBox, "Please fill in all required fields");
-      return;
+    if (!form) {
+        console.error('[AuthForms] Signup form not found');
+        return;
     }
 
-    if (!validateEmail(email)) {
-      showError(messageBox, "Please enter a valid email address");
-      return;
-    }
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
 
-    if (password.length < 6) {
-      showError(messageBox, "Password must be at least 6 characters long");
-      return;
-    }
+        if (submitBtn.disabled) return;
 
-    // Disable button and show loading state
-    submitBtn.disabled = true;
-    submitBtn.textContent = "Creating account...";
-    hideMessage(messageBox);
+        const full_name = document.getElementById('full_name').value.trim();
+        const roll_number = document.getElementById('roll_number').value.trim();
+        const email = document.getElementById('signup_email').value.trim();
+        const phone = document.getElementById('phone').value.trim();
+        const password = document.getElementById('signup_password').value;
 
-    // Prepare FormData
-    const formData = new FormData();
-    formData.append("full_name", full_name);
-    formData.append("roll_number", roll_number);
-    formData.append("email", email);
-    formData.append("password", password);
-    if (phone) {
-      formData.append("phone", phone);
-    }
+        // Validation
+        if (!full_name || !roll_number || !email || !password) {
+            showError(messageEl, 'Please fill in all required fields');
+            return;
+        }
 
-    console.log("Attempting signup for:", email);
+        if (full_name.length < 2) {
+            showError(messageEl, 'Name must be at least 2 characters');
+            return;
+        }
 
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/signup.php`, {
-        method: "POST",
-        body: formData,
-      });
+        if (!isValidEmail(email)) {
+            showError(messageEl, 'Please enter a valid email');
+            return;
+        }
 
-      console.log("Signup response status:", response.status);
+        if (password.length < 6) {
+            showError(messageEl, 'Password must be at least 6 characters');
+            return;
+        }
 
-      const data = await response.json();
-      console.log("Signup response data:", data);
+        // Loading state
+        setLoading(submitBtn, true, 'Creating account...');
+        hideMessage(messageEl);
 
-      if (data.success) {
-        // Show success message
-        showSuccess(
-          messageBox,
-          "Account created successfully! Redirecting to login..."
-        );
+        // Attempt signup
+        const { success, needsConfirmation, error } = await signup({
+            email,
+            password,
+            full_name,
+            roll_number,
+            phone
+        });
 
-        // Redirect to login after 2 seconds
-        setTimeout(() => {
-          window.location.href = "login.html";
-        }, 2000);
-      } else {
-        // Show error message
-        showError(messageBox, data.message || "Signup failed. Please try again.");
-        submitBtn.disabled = false;
-        submitBtn.textContent = "Sign Up";
-      }
-    } catch (error) {
-      console.error("Signup error:", error);
-      showError(
-        messageBox,
-        "Network error. Please check your connection and try again."
-      );
-      submitBtn.disabled = false;
-      submitBtn.textContent = "Sign Up";
-    }
-  });
+        if (!success) {
+            showError(messageEl, parseAuthError(error));
+            setLoading(submitBtn, false, 'Sign Up');
+            return;
+        }
+
+        // Success
+        if (needsConfirmation) {
+            showSuccess(messageEl, 'Account created! Check your email to verify.');
+            setLoading(submitBtn, false, 'Sign Up');
+        } else {
+            showSuccess(messageEl, 'Account created! Redirecting...');
+            setTimeout(() => {
+                window.location.href = 'dashboard.html';
+            }, 1500);
+        }
+    });
 }
 
-// =======================
-// UTILITY FUNCTIONS
-// =======================
+// ============================================================
+// UI HELPERS
+// ============================================================
 
-function validateEmail(email) {
-  const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return re.test(email);
+function showError(el, message) {
+    if (!el) return;
+    el.textContent = message;
+    el.style.display = 'block';
+    el.style.background = 'rgba(211, 47, 47, 0.1)';
+    el.style.border = '1px solid rgba(211, 47, 47, 0.3)';
+    el.style.color = 'var(--primary)';
 }
 
-function showError(element, message) {
-  if (!element) return;
-  element.textContent = message;
-  element.style.display = "block";
-  element.style.background = "rgba(211, 47, 47, 0.1)";
-  element.style.border = "1px solid rgba(211, 47, 47, 0.3)";
-  element.style.color = "var(--primary)";
+function showSuccess(el, message) {
+    if (!el) return;
+    el.textContent = message;
+    el.style.display = 'block';
+    el.style.background = 'rgba(76, 175, 80, 0.1)';
+    el.style.border = '1px solid rgba(76, 175, 80, 0.3)';
+    el.style.color = '#388e3c';
 }
 
-function showSuccess(element, message) {
-  if (!element) return;
-  element.textContent = message;
-  element.style.display = "block";
-  element.style.background = "rgba(76, 175, 80, 0.1)";
-  element.style.border = "1px solid rgba(76, 175, 80, 0.3)";
-  element.style.color = "#388e3c";
+function hideMessage(el) {
+    if (!el) return;
+    el.style.display = 'none';
 }
 
-function hideMessage(element) {
-  if (!element) return;
-  element.style.display = "none";
+function setLoading(btn, loading, text) {
+    if (!btn) return;
+    btn.disabled = loading;
+    btn.textContent = text;
 }
