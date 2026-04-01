@@ -22,7 +22,7 @@
             </a>
             <nav class="main-nav" aria-label="Primary">
                 <a href="dashboard.html">Dashboard</a>
-                <a href="sos-landing.html" class="btn-secondary" style="padding: 0.55rem 0.9rem;">SOS</a>
+                <button type="button" id="openSOSFromNavBtn" class="btn-secondary sos-inline-trigger" aria-haspopup="dialog" aria-controls="sosPanel" aria-expanded="false">SOS</button>
                 <a href="#" id="logoutBtn" style="color: var(--primary);">Logout</a>
             </nav>
         </div>
@@ -42,9 +42,9 @@
                 <div class="feature-card dashboard-card">
                     <h2>Quick Actions</h2>
                     <div class="action-buttons">
-                        <a href="sos-landing.html" class="btn btn-primary btn-sos" style="width: 100%; text-align: center;">
+                        <button type="button" id="openSOSPanelBtn" class="btn btn-primary btn-sos" style="width: 100%; text-align: center; border: 0; cursor: pointer;">
                             Emergency SOS
-                        </a>
+                        </button>
                         <button type="button" id="toggleComplaintFormBtn" class="btn btn-secondary" style="width: 100%;">
                             Submit Complaint
                         </button>
@@ -169,6 +169,41 @@
             </div>
         </div>
     </main>
+
+    <button
+        type="button"
+        id="floatingSOSBtn"
+        class="sos-fab"
+        aria-label="Open emergency SOS panel"
+        aria-haspopup="dialog"
+        aria-controls="sosPanel"
+        aria-expanded="false"
+    >
+        <span class="sos-fab-label">SOS</span>
+    </button>
+
+    <div id="sosOverlay" class="sos-overlay" hidden>
+        <section class="sos-panel" id="sosPanel" role="dialog" aria-modal="true" aria-labelledby="sosPanelTitle">
+            <button type="button" id="closeSOSPanelBtn" class="sos-panel-close" aria-label="Close emergency panel">&times;</button>
+            <h2 id="sosPanelTitle">Emergency SOS</h2>
+            <p class="sos-panel-subtext">Send an emergency alert to campus security instantly. Your live location will be attached when available.</p>
+
+            <ul class="sos-instructions" aria-label="Emergency instructions">
+                <li>Move to a safer visible spot if possible.</li>
+                <li>Keep your phone unlocked for callback support.</li>
+                <li>Stay on this page after sending SOS.</li>
+            </ul>
+
+            <div id="sosStatusMessage" class="message-box" style="display: none;" role="alert"></div>
+
+            <div class="sos-panel-actions">
+                <button type="button" id="confirmSOSBtn" class="btn btn-primary sos-confirm-btn">Trigger SOS Now</button>
+                <button type="button" id="cancelSOSBtn" class="btn btn-secondary sos-cancel-btn">Cancel</button>
+            </div>
+
+            <p class="sos-panel-hint">Tip: Double-click the floating SOS button for instant trigger.</p>
+        </section>
+    </div>
 
     <script type="module" src="js/dashboard.js"></script>
 </body>

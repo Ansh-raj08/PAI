@@ -11,6 +11,13 @@ console.log('[Dashboard] Module loaded');
 // Store current user
 let currentUser = null;
 let userProfile = null;
+let isSOSProcessing = false;
+let sosPanelOpen = false;
+let sosClickTimer = null;
+
+const SOS_DOUBLE_CLICK_WINDOW_MS = 220;
+const SOS_RETRY_DELAY_MS = 800;
+const SOS_CLOSE_ANIMATION_MS = 220;
 
 // ============================================================================
 // INITIALIZATION
@@ -301,7 +308,364 @@ function initEventListeners() {
         });
     }
 
+    initSOSControls();
+
     console.log('[Dashboard] Event listeners initialized');
+}
+
+// ============================================================================
+// SOS CONTROLS
+// ============================================================================
+
+function initSOSControls() {
+    const floatingBtn = document.getElementById('floatingSOSBtn');
+    const openFromNavBtn = document.getElementById('openSOSFromNavBtn');
+    const openFromQuickBtn = document.getElementById('openSOSPanelBtn');
+    const closeBtn = document.getElementById('closeSOSPanelBtn');
+    const cancelBtn = document.getElementById('cancelSOSBtn');
+    const confirmBtn = document.getElementById('confirmSOSBtn');
+    const overlay = document.getElementById('sosOverlay');
+
+    if (!floatingBtn || !overlay || !confirmBtn) {
+        console.warn('[Dashboard] SOS controls missing from DOM');
+        return;
+    }
+
+    floatingBtn.addEventListener('click', () => {
+        if (isSOSProcessing) return;
+
+        if (sosClickTimer) {
+            window.clearTimeout(sosClickTimer);
+            sosClickTimer = null;
+            triggerInstantSOS();
+            return;
+        }
+
+        sosClickTimer = window.setTimeout(() => {
+            toggleSOSPanel();
+            sosClickTimer = null;
+        }, SOS_DOUBLE_CLICK_WINDOW_MS);
+    });
+
+    if (openFromNavBtn) {
+        openFromNavBtn.addEventListener('click', () => {
+            if (!isSOSProcessing) openSOSPanel();
+        });
+    }
+
+    if (openFromQuickBtn) {
+        openFromQuickBtn.addEventListener('click', () => {
+            if (!isSOSProcessing) openSOSPanel();
+        });
+    }
+
+    if (closeBtn) {
+        closeBtn.addEventListener('click', closeSOSPanel);
+    }
+
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', closeSOSPanel);
+    }
+
+    confirmBtn.addEventListener('click', async () => {
+        await triggerSOSFlow();
+    });
+
+    overlay.addEventListener('click', (event) => {
+        if (event.target === overlay && !isSOSProcessing) {
+            closeSOSPanel();
+        }
+    });
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && sosPanelOpen && !isSOSProcessing) {
+            closeSOSPanel();
+        }
+    });
+
+    console.log('[Dashboard] SOS controls initialized');
+}
+
+function toggleSOSPanel() {
+    if (sosPanelOpen) {
+        closeSOSPanel();
+        return;
+    }
+    openSOSPanel();
+}
+
+function openSOSPanel() {
+    const overlay = document.getElementById('sosOverlay');
+    const panel = document.getElementById('sosPanel');
+    const confirmBtn = document.getElementById('confirmSOSBtn');
+
+    if (!overlay || !panel) return;
+    if (sosPanelOpen) return;
+
+    overlay.hidden = false;
+
+    window.requestAnimationFrame(() => {
+        overlay.classList.add('is-open');
+    });
+
+    setSOSExpanded(true);
+    sosPanelOpen = true;
+
+    const statusEl = document.getElementById('sosStatusMessage');
+    hideMessage(statusEl);
+
+    if (confirmBtn) {
+        window.setTimeout(() => confirmBtn.focus(), 80);
+    }
+}
+
+function closeSOSPanel() {
+    const overlay = document.getElementById('sosOverlay');
+    if (!overlay || !sosPanelOpen) return;
+
+    overlay.classList.remove('is-open');
+    setSOSExpanded(false);
+    sosPanelOpen = false;
+
+    window.setTimeout(() => {
+        overlay.hidden = true;
+    }, SOS_CLOSE_ANIMATION_MS);
+}
+
+function setSOSExpanded(expanded) {
+    const floatingBtn = document.getElementById('floatingSOSBtn');
+    const navBtn = document.getElementById('openSOSFromNavBtn');
+
+    if (floatingBtn) {
+        floatingBtn.setAttribute('aria-expanded', String(expanded));
+    }
+
+    if (navBtn) {
+        navBtn.setAttribute('aria-expanded', String(expanded));
+    }
+}
+
+async function triggerInstantSOS() {
+    openSOSPanel();
+    await triggerSOSFlow();
+}
+
+async function triggerSOSFlow() {
+    if (isSOSProcessing) return;
+    if (!currentUser) {
+        showSOSStatus('Please log in to trigger SOS.', 'error');
+        return;
+    }
+
+    const confirmBtn = document.getElementById('confirmSOSBtn');
+    const floatingBtn = document.getElementById('floatingSOSBtn');
+
+    isSOSProcessing = true;
+
+    if (confirmBtn) {
+        confirmBtn.disabled = true;
+        confirmBtn.textContent = 'Sending SOS...';
+    }
+
+    if (floatingBtn) {
+        floatingBtn.classList.add('is-sending', 'is-pressed');
+        floatingBtn.setAttribute('aria-busy', 'true');
+    }
+
+    if (navigator.vibrate) {
+        navigator.vibrate(200);
+    }
+
+    showSOSStatus('Preparing emergency alert...', 'info');
+
+    try {
+        const locationPayload = await resolveSOSLocation();
+        if (locationPayload.notice) {
+            showSOSStatus(locationPayload.notice, 'info');
+        }
+
+        await sendSOSWithRetry(locationPayload);
+
+        showSOSStatus('SOS sent successfully. Campus security has been notified.', 'success');
+
+        if (floatingBtn) {
+            floatingBtn.classList.remove('is-sending');
+            floatingBtn.classList.add('is-success');
+            window.setTimeout(() => floatingBtn.classList.remove('is-success'), 680);
+        }
+
+        await fetchComplaints();
+
+        window.setTimeout(() => {
+            closeSOSPanel();
+        }, 1200);
+
+    } catch (error) {
+        console.error('[Dashboard] SOS flow failed:', error);
+        showSOSStatus(getSOSErrorMessage(error), 'error');
+    } finally {
+        isSOSProcessing = false;
+
+        if (confirmBtn) {
+            confirmBtn.disabled = false;
+            confirmBtn.textContent = 'Trigger SOS Now';
+        }
+
+        if (floatingBtn) {
+            floatingBtn.classList.remove('is-sending', 'is-pressed');
+            floatingBtn.removeAttribute('aria-busy');
+        }
+    }
+}
+
+function resolveSOSLocation() {
+    if (!navigator.geolocation) {
+        return Promise.resolve({
+            latitude: null,
+            longitude: null,
+            locationText: 'Location unavailable',
+            notice: 'Location access is unavailable. Sending SOS without coordinates.'
+        });
+    }
+
+    return new Promise((resolve) => {
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const latitude = Number(position.coords.latitude);
+                const longitude = Number(position.coords.longitude);
+                const locationText = `Lat ${latitude.toFixed(6)}, Lng ${longitude.toFixed(6)}`;
+
+                resolve({ latitude, longitude, locationText, notice: '' });
+            },
+            (error) => {
+                console.warn('[Dashboard] Geolocation fallback:', error);
+
+                let notice = 'Location unavailable. Sending SOS without coordinates.';
+                if (error?.code === 1) {
+                    notice = 'Location permission denied. Sending SOS without coordinates.';
+                }
+
+                resolve({
+                    latitude: null,
+                    longitude: null,
+                    locationText: 'Location unavailable',
+                    notice
+                });
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 5000
+            }
+        );
+    });
+}
+
+async function sendSOSWithRetry(locationPayload) {
+    await withRetry(async () => {
+        await insertEmergencyAlert(locationPayload);
+        await insertEmergencyComplaint(locationPayload);
+    }, 1);
+}
+
+async function insertEmergencyAlert(locationPayload) {
+    const { error } = await supabase
+        .from('emergency_alerts')
+        .insert({
+            student_id: currentUser.id,
+            location: locationPayload.locationText,
+            latitude: locationPayload.latitude,
+            longitude: locationPayload.longitude,
+            status: 'active'
+        });
+
+    if (error) {
+        throw error;
+    }
+}
+
+async function insertEmergencyComplaint(locationPayload) {
+    const complaintPayload = {
+        student_id: currentUser.id,
+        title: 'Emergency SOS Alert',
+        complaint_type: 'safety',
+        description: locationPayload.latitude !== null && locationPayload.longitude !== null
+            ? `Emergency SOS triggered with coordinates: ${locationPayload.locationText}`
+            : 'Emergency SOS triggered without precise coordinates.',
+        location: locationPayload.locationText,
+        priority: 'emergency'
+    };
+
+    let { error } = await supabase
+        .from('complaints')
+        .insert(complaintPayload);
+
+    // Backward compatibility if priority column is not yet in the complaints table.
+    if (error && /column.*priority|priority.*column/i.test(error.message || '')) {
+        const { priority, ...fallbackPayload } = complaintPayload;
+        ({ error } = await supabase
+            .from('complaints')
+            .insert(fallbackPayload));
+    }
+
+    if (error) {
+        throw error;
+    }
+}
+
+async function withRetry(operation, maxRetries = 1) {
+    let attempt = 0;
+
+    while (true) {
+        try {
+            return await operation();
+        } catch (error) {
+            const canRetry = attempt < maxRetries && isRetryableNetworkIssue(error);
+            if (!canRetry) {
+                throw error;
+            }
+
+            attempt += 1;
+            console.warn(`[Dashboard] SOS retry attempt ${attempt}`);
+            await delay(SOS_RETRY_DELAY_MS);
+        }
+    }
+}
+
+function isRetryableNetworkIssue(error) {
+    const message = String(error?.message || '').toLowerCase();
+    return (
+        message.includes('failed to fetch') ||
+        message.includes('network') ||
+        message.includes('timeout') ||
+        message.includes('503') ||
+        message.includes('504')
+    );
+}
+
+function getSOSErrorMessage(error) {
+    const message = String(error?.message || '').toLowerCase();
+
+    if (message.includes('permission') || message.includes('unauthorized') || message.includes('rls')) {
+        return 'Unable to send SOS due to permission settings. Please contact support immediately.';
+    }
+
+    if (message.includes('network') || message.includes('fetch') || message.includes('timeout')) {
+        return 'Network issue prevented SOS delivery. Please retry now or call campus emergency helpline.';
+    }
+
+    return 'Unable to send SOS right now. Please try again immediately or call campus emergency helpline.';
+}
+
+function showSOSStatus(text, type) {
+    const statusEl = document.getElementById('sosStatusMessage');
+    showMessage(statusEl, text, type);
+}
+
+function delay(ms) {
+    return new Promise((resolve) => {
+        window.setTimeout(resolve, ms);
+    });
 }
 
 // ============================================================================
